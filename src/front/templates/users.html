@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usuarios | Controle de Estoque</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body data-page="users">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/">
+                <span class="brand-mark"><i data-lucide="box"></i></span>
+                <strong>Estoque Central</strong>
+            </a>
+            <div class="nav-label">Workspace</div>
+            <nav>
+                <ul class="nav-list">
+                    <li>
+                        <a class="nav-link" data-page="dashboard" href="/">
+                            <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                            <span>Visao geral</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" data-page="products" href="/products.html">
+                            <span class="nav-icon"><i data-lucide="package"></i></span>
+                            <span>Produtos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" data-page="logs" href="/stock-logs.html">
+                            <span class="nav-icon"><i data-lucide="arrow-left-right"></i></span>
+                            <span>Movimentacoes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" data-page="users" href="/users.html">
+                            <span class="nav-icon"><i data-lucide="users"></i></span>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">Controle de Estoque<br>Operacao segura</div>
+        </aside>
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <div class="eyebrow">Acesso</div>
+                    <h1>Usuarios</h1>
+                    <p class="subtitle">Controle quem pode operar o estoque.</p>
+                </div>
+                <button class="btn btn-primary" id="new-user">
+                    <i data-lucide="user-plus"></i> Novo usuario
+                </button>
+            </header>
+            <section class="panel table-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Equipe cadastrada</h2>
+                        <p class="subtitle">Permissoes e status atuais.</p>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Perfil</th>
+                                <th>Status</th>
+                                <th>ID</th>
+                                <th>Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body" data-columns="5"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="toast" class="toast"></div>
+    <div class="modal-backdrop" id="user-modal">
+        <form class="modal" id="user-form">
+            <div class="modal-header">
+                <h2 class="modal-title">Novo usuario</h2>
+                <button type="button" class="icon-btn" data-close="user-modal" aria-label="Fechar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="username">Nome de usuario *</label>
+                    <input id="username" name="username" required minlength="3" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="full_name">Nome completo</label>
+                    <input id="full_name" name="full_name" maxlength="100">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close="user-modal">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Criar usuario</button>
+            </div>
+        </form>
+    </div>
+    <script type="module" src="/static/js/app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

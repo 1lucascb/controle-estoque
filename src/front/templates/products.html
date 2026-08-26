@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Produtos | Controle de Estoque</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body data-page="products">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/">
+                <span class="brand-mark"><i data-lucide="box"></i></span>
+                <strong>Estoque Central</strong>
+            </a>
+            <div class="nav-label">Workspace</div>
+            <nav>
+                <ul class="nav-list">
+                    <li>
+                        <a class="nav-link" data-page="dashboard" href="/">
+                            <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                            <span>Visao geral</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" data-page="products" href="/products.html">
+                            <span class="nav-icon"><i data-lucide="package"></i></span>
+                            <span>Produtos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" data-page="logs" href="/stock-logs.html">
+                            <span class="nav-icon"><i data-lucide="arrow-left-right"></i></span>
+                            <span>Movimentacoes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" data-page="users" href="/users.html">
+                            <span class="nav-icon"><i data-lucide="users"></i></span>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">Controle de Estoque<br>Operacao segura</div>
+        </aside>
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <div class="eyebrow">Catalogo</div>
+                    <h1>Produtos</h1>
+                    <p class="subtitle">Gerencie itens, limites e disponibilidade.</p>
+                </div>
+                <button class="btn btn-primary" id="new-product">
+                    <i data-lucide="plus"></i> Novo produto
+                </button>
+            </header>
+            <section class="panel table-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Todos os produtos</h2>
+                        <p class="subtitle">Use os controles para manter os saldos atualizados.</p>
+                    </div>
+                    <input class="search-box" id="product-search" type="search" placeholder="Buscar produto..."
+                        aria-label="Buscar produto">
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Saldo</th>
+                                <th>Minimo</th>
+                                <th>Status</th>
+                                <th>Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body" data-columns="5"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="toast" class="toast"></div>
+    <div class="modal-backdrop" id="product-modal">
+        <form class="modal" id="product-form">
+            <div class="modal-header">
+                <h2 class="modal-title">Novo produto</h2>
+                <button type="button" class="icon-btn" data-close="product-modal" aria-label="Fechar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="productId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Nome *</label>
+                        <input id="name" name="name" required maxlength="150">
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Categoria</label>
+                        <input id="category" name="category" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="current_amount">Estoque atual</label>
+                        <input id="current_amount" name="current_amount" type="number" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="min_stock_threshold">Estoque minimo</label>
+                        <input id="min_stock_threshold" name="min_stock_threshold" type="number" min="0" required>
+                    </div>
+                    <div class="form-group full">
+                        <label for="description">Descricao</label>
+                        <textarea id="description" name="description"></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label for="image_path">Caminho da imagem</label>
+                        <input id="image_path" name="image_path" maxlength="255">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close="product-modal">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Salvar produto</button>
+            </div>
+        </form>
+    </div>
+    <div class="modal-backdrop" id="stock-modal">
+        <form class="modal" id="stock-form">
+            <div class="modal-header">
+                <h2 class="modal-title">Ajustar estoque</h2>
+                <button type="button" class="icon-btn" data-close="stock-modal" aria-label="Fechar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="productId">
+                <div class="form-group">
+                    <label for="change_amount">Alteracao</label>
+                    <input id="change_amount" name="change_amount" type="number" required placeholder="Ex.: 10 ou -3">
+                </div>
+                <div class="form-group">
+                    <label for="reason">Motivo</label>
+                    <input id="reason" name="reason" maxlength="255" placeholder="Ex.: recebimento, venda ou avaria">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close="stock-modal">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Atualizar saldo</button>
+            </div>
+        </form>
+    </div>
+    <script type="module" src="/static/js/app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
