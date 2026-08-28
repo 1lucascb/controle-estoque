@@ -34,14 +34,20 @@ async def get_product(product_id: int, db: Session = Depends(get_db)):
 async def create_product(product_data: ProductCreate, db: Session = Depends(get_db)):
     """Create a new product."""
     service = ProductService(db)
-    return service.create_product(product_data)
+    try:
+        return service.create_product(product_data)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
 
 
 @router.put("/{product_id}", response_model=ProductResponse)
 async def update_product(product_id: int, product_data: ProductUpdate, db: Session = Depends(get_db)):
     """Update an existing product."""
     service = ProductService(db)
-    product = service.update_product(product_id, product_data)
+    try:
+        product = service.update_product(product_id, product_data)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return product

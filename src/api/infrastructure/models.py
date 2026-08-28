@@ -20,6 +20,15 @@ class User(Base):
     stock_logs: Mapped[List["StockLog"]] = relationship("StockLog", back_populates="user")
 
 
+class Category(Base):
+    __tablename__ = "categories"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+
+    products: Mapped[List["Product"]] = relationship("Product", back_populates="category")
+
+
 class Product(Base):
     __tablename__ = "products"
 
@@ -29,7 +38,7 @@ class Product(Base):
     current_amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     min_stock_threshold: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
     image_path: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    category: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False, index=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
@@ -40,6 +49,7 @@ class Product(Base):
     stock_logs: Mapped[List["StockLog"]] = relationship(
         "StockLog", back_populates="product", cascade="all, delete-orphan"
     )
+    category: Mapped["Category"] = relationship("Category", back_populates="products")
 
     @property
     def is_low_stock(self) -> bool:

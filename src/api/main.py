@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
-from src.api.routers import auth, health, logs, products, users, exporter
+from src.api.routers import auth, categories, health, logs, products, users, exporter
 from src.api.infrastructure.database import init_db
 from src.api.config import get_settings
 
@@ -38,6 +38,7 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(logs.router)
 app.include_router(products.router)
+app.include_router(categories.router)
 app.include_router(users.router)
 app.include_router(exporter.router)
 

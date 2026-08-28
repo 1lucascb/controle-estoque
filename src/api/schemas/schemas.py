@@ -51,6 +51,18 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
+# --- Category Schemas ---
+class CategoryCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=50)
+
+
+class CategoryResponse(BaseModel):
+    id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # --- Product Schemas ---
 class ProductBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=150)
@@ -58,7 +70,7 @@ class ProductBase(BaseModel):
     current_amount: int = Field(0, ge=0)
     min_stock_threshold: int = Field(5, ge=0)
     image_path: Optional[str] = Field(None, max_length=255)
-    category: Optional[str] = Field(None, max_length=50)
+    category_id: int = Field(..., gt=0)
 
 
 class ProductCreate(ProductBase):
@@ -71,7 +83,7 @@ class ProductUpdate(BaseModel):
     current_amount: Optional[int] = Field(None, ge=0)
     min_stock_threshold: Optional[int] = Field(None, ge=0)
     image_path: Optional[str] = Field(None, max_length=255)
-    category: Optional[str] = Field(None, max_length=50)
+    category_id: Optional[int] = Field(None, gt=0)
 
 
 class ProductResponse(ProductBase):
