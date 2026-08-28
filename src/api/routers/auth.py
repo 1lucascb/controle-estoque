@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 
 from src.api.infrastructure.database import get_db
-from src.api.schemas.schemas import LoginRequest, TokenResponse
+from src.api.schemas.schemas import ChangePasswordRequest, LoginRequest, TokenResponse
 from fastapi.responses import RedirectResponse
 from src.api.services.user_service import UserService
 from src.api.utils.jwt_handler import create_access_token, require_access_token
@@ -48,3 +48,19 @@ async def logout(_: dict = Depends(require_access_token)):
     response = RedirectResponse(url="/auth/login.html", status_code=303)
     response.delete_cookie("access_token")
     return response
+
+
+@router.post("/change-password")
+async def change_password(
+    password_data: ChangePasswordRequest,
+    token: dict = Depends(require_access_token),
+    db: Session = Depends(get_db),
+):
+    service = UserService(db)
+    if not service.change_password(token["user_id"], password_data):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    return {"detail": "Password changed successfully"}
