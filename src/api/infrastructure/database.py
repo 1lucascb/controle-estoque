@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
 
 from src.api.config import get_settings
+from src.api.infrastructure.migrations import run_migrations
 
 settings = get_settings()
 
@@ -29,6 +30,9 @@ class Base(DeclarativeBase):
 def init_db() -> None:
     import src.api.infrastructure.models
     Base.metadata.create_all(bind=engine)
+
+    with engine.connect() as connection:
+        run_migrations(connection)
 
     from src.api.infrastructure.models import User
     with SessionLocal() as db:
