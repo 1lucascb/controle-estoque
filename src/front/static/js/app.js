@@ -1,5 +1,7 @@
 const page = document.body.dataset.page;
 const state = { products: [], users: [], logs: [], categories: [] };
+const charts = {};
+const chartModes = { category: 'category', product: 'product' };
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -86,6 +88,40 @@ async function initChangePassword() {
 async function initLogs() { setLoading($('#log-table-body')); try { await loadLogs(); renderLogs(); } catch (error) { $('#log-table-body').innerHTML = `<tr><td colspan="6"><div class="empty-state">${escapeHtml(error.message)}</div></td></tr>`; } $('#log-search').addEventListener('input', renderLogs); }
 function renderLogs() { const term = $('#log-search').value.toLowerCase(); const logs = state.logs.filter(log => `${log.product_name} ${log.user_name} ${log.reason || ''}`.toLowerCase().includes(term)); $('#log-table-body').innerHTML = logs.length ? logs.map(log => `<tr><td>${date(log.created_at)}</td><td><strong>${escapeHtml(log.product_name)}</strong></td><td>${escapeHtml(log.user_name)}</td><td><span class="badge ${log.difference >= 0 ? 'badge-success' : 'badge-danger'}">${log.difference >= 0 ? '+' : ''}${log.difference}</span></td><td>${log.previous_amount} -> ${log.new_amount}</td><td>${escapeHtml(log.reason || 'Sem motivo')}</td></tr>`).join('') : '<tr><td colspan="6"><div class="empty-state">Nenhuma movimentacao encontrada.</div></td></tr>'; refreshIcons(); }
 
-async function initDashboard() { try { await Promise.all([loadProducts(), loadUsers(), loadLogs()]); $('#stat-products').textContent = state.products.length; $('#stat-low').textContent = state.products.filter(item => item.is_low_stock).length; $('#stat-users').textContent = state.users.length; $('#stat-movements').textContent = state.logs.length; $('#low-stock-list').innerHTML = state.products.filter(item => item.is_low_stock).slice(0, 5).map(item => `<div class="list-row"><span><strong>${escapeHtml(item.name)}</strong><small>${item.current_amount} unidades disponiveis</small></span>${productStatus(item)}</div>`).join('') || '<div class="empty-state">Tudo em ordem por aqui.</div>'; $('#recent-list').innerHTML = state.logs.slice(0, 5).map(log => `<div class="list-row"><span><strong>${escapeHtml(log.product_name)}</strong><small>${escapeHtml(log.user_name)} - ${date(log.created_at)}</small></span><b class="${log.difference >= 0 ? 'positive' : 'negative'}">${log.difference >= 0 ? '+' : ''}${log.difference}</b></div>`).join('') || '<div class="empty-state">Nenhuma movimentacao recente.</div>'; refreshIcons(); } catch (error) { showToast(error.message, 'error'); } }
+function chartColors(count) { return Array.from({ length: count }, (_, index) => `hsl(${(index * 137.5 + 200) % 360} 62% 48%)`); }
+function renderDashboardCharts() {
+    const totalsBy = dimension => state.products.reduce((totals, product) => {
+        const name = dimension === 'category' ? categoryName(product.category_id) : product.name;
+        if (!totals[name]) totals[name] = { amount: 0, hasLowStock: false };
+        totals[name].amount += product.current_amount;
+        totals[name].hasLowStock ||= product.is_low_stock;
+        return totals;
+    }, {});
+    const doughnutTotals = totalsBy(chartModes.category);
+    const barTotals = totalsBy(chartModes.product);
+    const doughnutLabels = Object.keys(doughnutTotals);
+    const barLabels = Object.keys(barTotals);
+    const hasProducts = state.products.length > 0;
+    $('#stock-category-empty').hidden = hasProducts;
+    $('#product-stock-empty').hidden = hasProducts;
+    $('#category-chart-title').textContent = `Estoque por ${chartModes.category === 'category' ? 'categoria' : 'produto'}`;
+    $('#category-chart-subtitle').textContent = `Distribuicao do saldo atual por ${chartModes.category === 'category' ? 'categoria' : 'produto'}.`;
+    $('#product-chart-title').textContent = `Saldo por ${chartModes.product === 'category' ? 'categoria' : 'produto'}`;
+    $('#product-chart-subtitle').textContent = `Quantidade disponivel por ${chartModes.product === 'category' ? 'categoria' : 'produto'}.`;
+    if (!window.Chart || !hasProducts) return;
+    charts.category?.destroy();
+    charts.product?.destroy();
+    charts.category = new Chart($('#stock-category-chart'), {
+        type: 'doughnut',
+        data: { labels: doughnutLabels, datasets: [{ data: doughnutLabels.map(label => doughnutTotals[label].amount), backgroundColor: doughnutLabels.map((label, index) => doughnutTotals[label].hasLowStock ? '#dd6b20' : chartColors(doughnutLabels.length)[index]), borderWidth: 2, borderColor: '#ffffff' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+    });
+    charts.product = new Chart($('#product-stock-chart'), {
+        type: 'bar',
+        data: { labels: barLabels, datasets: [{ label: 'Unidades', data: barLabels.map(label => barTotals[label].amount), backgroundColor: barLabels.map((label, index) => barTotals[label].hasLowStock ? '#dd6b20' : chartColors(barLabels.length)[index]), borderRadius: 4, maxBarThickness: 42 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } },
+    });
+}
+async function initDashboard() { try { await Promise.all([loadProducts(), loadUsers(), loadLogs(), loadCategories()]); $('#stat-products').textContent = state.products.length; $('#stat-low').textContent = state.products.filter(item => item.is_low_stock).length; $('#stat-users').textContent = state.users.length; $('#stat-movements').textContent = state.logs.length; renderDashboardCharts(); $('#category-chart-mode').addEventListener('change', event => { chartModes.category = event.target.value; renderDashboardCharts(); }); $('#product-chart-mode').addEventListener('change', event => { chartModes.product = event.target.value; renderDashboardCharts(); }); $('#low-stock-list').innerHTML = state.products.filter(item => item.is_low_stock).slice(0, 5).map(item => `<div class="list-row"><span><strong>${escapeHtml(item.name)}</strong><small>${item.current_amount} unidades disponiveis</small></span>${productStatus(item)}</div>`).join('') || '<div class="empty-state">Tudo em ordem por aqui.</div>'; $('#recent-list').innerHTML = state.logs.slice(0, 5).map(log => `<div class="list-row"><span><strong>${escapeHtml(log.product_name)}</strong><small>${escapeHtml(log.user_name)} - ${date(log.created_at)}</small></span><b class="${log.difference >= 0 ? 'positive' : 'negative'}">${log.difference >= 0 ? '+' : ''}${log.difference}</b></div>`).join('') || '<div class="empty-state">Nenhuma movimentacao recente.</div>'; refreshIcons(); } catch (error) { showToast(error.message, 'error'); } }
 
 document.addEventListener('DOMContentLoaded', () => { $$('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.page === page)); bindLogout(); $$('.modal-backdrop').forEach(modal => modal.addEventListener('keydown', event => { if (event.key === 'Escape') modal.classList.remove('open'); })); if (page === 'dashboard') initDashboard(); if (page === 'products') initProducts(); if (page === 'categories') initCategories(); if (page === 'logs') initLogs(); if (page === 'users') initUsers(); if (page === 'change-password') initChangePassword(); refreshIcons(); });

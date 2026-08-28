@@ -7,6 +7,7 @@
     <title>Visao geral | Controle de Estoque</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 
 <body data-page="dashboard">
@@ -63,6 +64,46 @@
                     <div class="stat-icon"><i data-lucide="arrow-left-right"></i></div>
                 </article>
             </section>
+            <div class="charts-grid">
+                <section class="panel chart-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 id="category-chart-title">Estoque por categoria</h2>
+                            <p class="subtitle" id="category-chart-subtitle">Distribuicao do saldo atual.</p>
+                        </div>
+                        <label class="chart-filter">
+                            <span>Ver por</span>
+                            <select class="select-control" id="category-chart-mode" aria-label="Escolher dimensao do grafico circular">
+                                <option value="category">Categoria</option>
+                                <option value="product">Produto</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="chart-wrap chart-doughnut-wrap">
+                        <canvas id="stock-category-chart" aria-label="Estoque por categoria"></canvas>
+                        <div class="empty-state chart-empty" id="stock-category-empty">Nenhum produto cadastrado.</div>
+                    </div>
+                </section>
+                <section class="panel chart-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 id="product-chart-title">Saldo por produto</h2>
+                            <p class="subtitle" id="product-chart-subtitle">Quantidade disponivel por item.</p>
+                        </div>
+                        <label class="chart-filter">
+                            <span>Ver por</span>
+                            <select class="select-control" id="product-chart-mode" aria-label="Escolher dimensao do grafico de barras">
+                                <option value="product">Produto</option>
+                                <option value="category">Categoria</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="product-stock-chart" aria-label="Saldo por produto"></canvas>
+                        <div class="empty-state chart-empty" id="product-stock-empty">Nenhum produto cadastrado.</div>
+                    </div>
+                </section>
+            </div>
             <div class="content-grid">
                 <section class="panel">
                     <div class="panel-header">
