@@ -57,9 +57,29 @@ async function initProducts() {
 function renderUserRows(users = state.users) { const body = $('#user-table-body'); body.innerHTML = users.length ? users.map(user => `<tr><td><strong>${escapeHtml(user.full_name || user.username)}</strong><br><small>@${escapeHtml(user.username)}</small></td><td><span class="badge ${user.role === 'admin' ? 'badge-warning' : 'badge-neutral'}">${escapeHtml(user.role)}</span></td><td>${user.is_active ? '<span class="badge badge-success">Ativo</span>' : '<span class="badge badge-danger">Inativo</span>'}</td><td>${user.id}</td><td><button class="icon-btn" title="Excluir usuario" data-delete-user="${user.id}">${icon('trash-2')}</button></td></tr>`).join('') : '<tr><td colspan="5"><div class="empty-state">Nenhum usuario encontrado.</div></td></tr>'; refreshIcons(); }
 async function initUsers() { setLoading($('#user-table-body')); try { await loadUsers(); renderUserRows(); } catch (error) { $('#user-table-body').innerHTML = `<tr><td colspan="5"><div class="empty-state">${escapeHtml(error.message)}</div></td></tr>`; } bindModal('user-modal'); $('#new-user').addEventListener('click', () => { $('#user-form').reset(); openModal('user-modal', 'Novo usuario'); }); $('#user-form').addEventListener('submit', async event => { event.preventDefault(); const form = event.currentTarget; try { await request('/api/v1/users', { method: 'POST', body: JSON.stringify({ username: form.elements.username.value, full_name: form.elements.full_name.value || null }) }); closeModal('user-modal'); await loadUsers(); renderUserRows(); showToast('Usuario criado.'); } catch (error) { showToast(error.message, 'error'); } }); $('#user-table-body').addEventListener('click', async event => { const remove = event.target.closest('[data-delete-user]'); if (remove && confirm('Excluir este usuario?')) { try { await request(`/api/v1/users/${remove.dataset.deleteUser}`, { method: 'DELETE' }); await loadUsers(); renderUserRows(); showToast('Usuario excluido.'); } catch (error) { showToast(error.message, 'error'); } } }); }
 
+async function initChangePassword() {
+    const form = $('#change-password-form');
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const button = form.querySelector('button[type="submit"]');
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
+        button.disabled = true;
+        try {
+            await request('/api/v1/auth/change-password', { method: 'POST', body: JSON.stringify(payload) });
+            form.reset();
+            showToast('Senha alterada com sucesso.');
+        } catch (error) {
+            showToast(error.message, 'error');
+        } finally {
+            button.disabled = false;
+        }
+    });
+}
+
 async function initLogs() { setLoading($('#log-table-body')); try { await loadLogs(); renderLogs(); } catch (error) { $('#log-table-body').innerHTML = `<tr><td colspan="6"><div class="empty-state">${escapeHtml(error.message)}</div></td></tr>`; } $('#log-search').addEventListener('input', renderLogs); }
 function renderLogs() { const term = $('#log-search').value.toLowerCase(); const logs = state.logs.filter(log => `${log.product_name} ${log.user_name} ${log.reason || ''}`.toLowerCase().includes(term)); $('#log-table-body').innerHTML = logs.length ? logs.map(log => `<tr><td>${date(log.created_at)}</td><td><strong>${escapeHtml(log.product_name)}</strong></td><td>${escapeHtml(log.user_name)}</td><td><span class="badge ${log.difference >= 0 ? 'badge-success' : 'badge-danger'}">${log.difference >= 0 ? '+' : ''}${log.difference}</span></td><td>${log.previous_amount} -> ${log.new_amount}</td><td>${escapeHtml(log.reason || 'Sem motivo')}</td></tr>`).join('') : '<tr><td colspan="6"><div class="empty-state">Nenhuma movimentacao encontrada.</div></td></tr>'; refreshIcons(); }
 
 async function initDashboard() { try { await Promise.all([loadProducts(), loadUsers(), loadLogs()]); $('#stat-products').textContent = state.products.length; $('#stat-low').textContent = state.products.filter(item => item.is_low_stock).length; $('#stat-users').textContent = state.users.length; $('#stat-movements').textContent = state.logs.length; $('#low-stock-list').innerHTML = state.products.filter(item => item.is_low_stock).slice(0, 5).map(item => `<div class="list-row"><span><strong>${escapeHtml(item.name)}</strong><small>${item.current_amount} unidades disponiveis</small></span>${productStatus(item)}</div>`).join('') || '<div class="empty-state">Tudo em ordem por aqui.</div>'; $('#recent-list').innerHTML = state.logs.slice(0, 5).map(log => `<div class="list-row"><span><strong>${escapeHtml(log.product_name)}</strong><small>${escapeHtml(log.user_name)} - ${date(log.created_at)}</small></span><b class="${log.difference >= 0 ? 'positive' : 'negative'}">${log.difference >= 0 ? '+' : ''}${log.difference}</b></div>`).join('') || '<div class="empty-state">Nenhuma movimentacao recente.</div>'; refreshIcons(); } catch (error) { showToast(error.message, 'error'); } }
 
-document.addEventListener('DOMContentLoaded', () => { $$('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.page === page)); bindLogout(); $$('.modal-backdrop').forEach(modal => modal.addEventListener('keydown', event => { if (event.key === 'Escape') modal.classList.remove('open'); })); if (page === 'dashboard') initDashboard(); if (page === 'products') initProducts(); if (page === 'logs') initLogs(); if (page === 'users') initUsers(); refreshIcons(); });
+document.addEventListener('DOMContentLoaded', () => { $$('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.page === page)); bindLogout(); $$('.modal-backdrop').forEach(modal => modal.addEventListener('keydown', event => { if (event.key === 'Escape') modal.classList.remove('open'); })); if (page === 'dashboard') initDashboard(); if (page === 'products') initProducts(); if (page === 'logs') initLogs(); if (page === 'users') initUsers(); if (page === 'change-password') initChangePassword(); refreshIcons(); });

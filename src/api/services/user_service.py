@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from src.api.infrastructure.models import User
-from src.api.schemas.schemas import UserCreate, UserUpdate
+from src.api.schemas.schemas import ChangePasswordRequest, UserCreate, UserUpdate
 from src.api.utils.hash import HashUtils
 
 
@@ -24,6 +24,7 @@ class UserService:
     def create_user(self, user_data: UserCreate) -> User:
         """Create a new user."""
         if self.get_user_by_username(user_data.username):
+            print("ja existe no banco")
             raise Exception(f"User with username '{user_data.username}' already exists")
 
         user = User(
@@ -39,6 +40,7 @@ class UserService:
             self.db.refresh(user)
             return user
         except IntegrityError:
+            print("error exception")
             self.db.rollback()
             raise ValueError(f"User with username '{user_data.username}' already exists")
 
@@ -86,3 +88,13 @@ class UserService:
             return None
 
         return user
+
+    def change_password(self, user_id: int, password_data: ChangePasswordRequest) -> bool:
+        """Change an active user's password after verifying the current one."""
+        user = self.get_user_by_id(user_id)
+        if not user or not HashUtils.check_pwd(password_data.current_password, user.password_hash):
+            return False
+
+        user.password_hash = HashUtils.generate_pwd(password_data.new_password)
+        self.db.commit()
+        return True
