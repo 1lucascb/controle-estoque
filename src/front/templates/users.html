@@ -11,31 +11,7 @@
 
 <body data-page="users">
     <div class="app-shell">
-        <aside class="sidebar">
-            <a class="brand" href="/">
-                <span class="brand-mark"><i data-lucide="box"></i></span>
-                <strong>Estoque Central</strong>
-            </a>
-            <div class="nav-label">Workspace</div>
-            <nav>
-                <ul class="nav-list">
-                    <li><a class="nav-link" data-page="dashboard" href="/"><span class="nav-icon"><i
-                                    data-lucide="layout-dashboard"></i></span><span>Visao geral</span></a></li>
-                    <li><a class="nav-link" data-page="products" href="/products.html"><span class="nav-icon"><i
-                                    data-lucide="package"></i></span><span>Produtos</span></a></li>
-                    <li><a class="nav-link" data-page="categories" href="/categories.html"><span class="nav-icon"><i
-                                    data-lucide="tags"></i></span><span>Categorias</span></a></li>
-                    <li><a class="nav-link" data-page="logs" href="/stock-logs.html"><span class="nav-icon"><i
-                                    data-lucide="arrow-left-right"></i></span><span>Movimentacoes</span></a></li>
-                    <li><a class="nav-link" data-page="users" href="/users.html"><span class="nav-icon"><i
-                                    data-lucide="users"></i></span><span>Usuarios</span></a></li>
-                    <li><a class="nav-link" data-page="change-password" href="/change-password.html"><span
-                                class="nav-icon"><i data-lucide="key-round"></i></span><span>Alterar senha</span></a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="sidebar-footer">Controle de Estoque<br>Operacao segura</div>
-        </aside>
+        {% include 'sidebar.html' %}
         <main class="main-content">
             <header class="topbar">
                 <div>
