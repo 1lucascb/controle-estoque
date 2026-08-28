@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from src.api.infrastructure.models import Product, StockLog
+from src.api.infrastructure.models import Category, Product, StockLog
 from src.api.schemas.schemas import ProductCreate, ProductUpdate, StockAdjustment
-
+from datetime import datetime, timezone
 
 class ProductService:
     def __init__(self, db: Session):
@@ -17,13 +17,16 @@ class ProductService:
 
     def create_product(self, product_data: ProductCreate) -> Product:
         """Create a new product."""
+        now = datetime.now(timezone.utc)
         product = Product(
             name=product_data.name,
             description=product_data.description,
             current_amount=product_data.current_amount,
             min_stock_threshold=product_data.min_stock_threshold,
             image_path=product_data.image_path,
-            category=product_data.category,
+            category_id=self._validate_category(product_data.category_id),
+            created_at=now,
+            updated_at=now,
         )
         self.db.add(product)
         self.db.commit()
@@ -38,12 +41,23 @@ class ProductService:
 
         update_data = product_data.model_dump(exclude_unset=True)
 
+        if "category_id" in update_data:
+            update_data["category_id"] = self._validate_category(update_data["category_id"])
+
         for key, value in update_data.items():
             setattr(product, key, value)
+
+        now = datetime.now(timezone.utc)
+        product.updated_at = now
 
         self.db.commit()
         self.db.refresh(product)
         return product
+
+    def _validate_category(self, category_id: int) -> int:
+        if not self.db.query(Category.id).filter(Category.id == category_id).first():
+            raise ValueError("Category not found")
+        return category_id
 
     def delete_product(self, product_id: int) -> bool:
         """Delete a product by ID."""

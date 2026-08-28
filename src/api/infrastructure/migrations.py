@@ -24,6 +24,28 @@ def _execute_script(connection: Connection, sql: str) -> None:
             connection.exec_driver_sql(statement)
 
 
+def _is_legacy_products_schema(connection: Connection) -> bool:
+    columns = {
+        row[1]
+        for row in connection.exec_driver_sql("PRAGMA table_info(products)")
+    }
+    return "category" in columns and "category_id" not in columns
+
+
+def _migration_sql(connection: Connection, version: int, sql: str) -> str:
+    if version != 2:
+        return sql
+
+    marker = "legacy" if _is_legacy_products_schema(connection) else "fresh"
+    start = f"-- migration2:{marker}"
+    end = "-- migration2:end"
+    start_index = sql.find(start)
+    end_index = sql.find(end, start_index + len(start))
+    if start_index == -1 or end_index == -1:
+        raise RuntimeError(f"Missing migration2 {marker} section")
+    return sql[start_index + len(start):end_index]
+
+
 def run_migrations(connection: Connection) -> None:
     connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
     connection.commit()
@@ -58,7 +80,7 @@ def _apply_migrations(connection: Connection) -> None:
 
         print("Executing migration script:", path, version)
         sql = path.read_text(encoding="utf-8")
-        _execute_script(connection, sql)
+        _execute_script(connection, _migration_sql(connection, version, sql))
         connection.execute(
             text("INSERT INTO schema_migrations (version) VALUES (:version)"),
             {"version": version},

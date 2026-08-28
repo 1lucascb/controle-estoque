@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Categorias | Controle de Estoque</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body data-page="categories">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/"><span class="brand-mark"><i data-lucide="box"></i></span><strong>Estoque Central</strong></a>
+            <div class="nav-label">Workspace</div>
+            <nav><ul class="nav-list">
+                <li><a class="nav-link" data-page="dashboard" href="/"><span class="nav-icon"><i data-lucide="layout-dashboard"></i></span><span>Visao geral</span></a></li>
+                <li><a class="nav-link" data-page="products" href="/products.html"><span class="nav-icon"><i data-lucide="package"></i></span><span>Produtos</span></a></li>
+                <li><a class="nav-link" data-page="categories" href="/categories.html"><span class="nav-icon"><i data-lucide="tags"></i></span><span>Categorias</span></a></li>
+                <li><a class="nav-link" data-page="logs" href="/stock-logs.html"><span class="nav-icon"><i data-lucide="arrow-left-right"></i></span><span>Movimentacoes</span></a></li>
+                <li><a class="nav-link" data-page="users" href="/users.html"><span class="nav-icon"><i data-lucide="users"></i></span><span>Usuarios</span></a></li>
+                <li><a class="nav-link" data-page="change-password" href="/change-password.html"><span class="nav-icon"><i data-lucide="key-round"></i></span><span>Alterar senha</span></a></li>
+            </ul></nav>
+            <div class="sidebar-footer">Controle de Estoque<br>Operacao segura</div>
+        </aside>
+        <main class="main-content">
+            <header class="topbar"><div><div class="eyebrow">Catalogo</div><h1>Categorias</h1><p class="subtitle">Organize os produtos do estoque.</p></div><button class="btn btn-primary" id="new-category"><i data-lucide="plus"></i> Nova categoria</button></header>
+            <section class="panel table-panel"><div class="panel-header"><div><h2>Categorias cadastradas</h2><p class="subtitle">Uma categoria em uso nao pode ser excluida.</p></div></div><div class="table-wrap"><table><thead><tr><th>Nome</th><th>Acoes</th></tr></thead><tbody id="category-table-body" data-columns="2"></tbody></table></div></section>
+        </main>
+    </div>
+    <div id="toast" class="toast"></div>
+    <div class="modal-backdrop" id="category-modal"><form class="modal" id="category-form"><div class="modal-header"><h2 class="modal-title">Nova categoria</h2><button type="button" class="icon-btn" data-close="category-modal" aria-label="Fechar"><i data-lucide="x"></i></button></div><div class="modal-body"><div class="form-group"><label for="name">Nome *</label><input id="name" name="name" required maxlength="50"></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-close="category-modal">Cancelar</button><button class="btn btn-primary" type="submit">Salvar categoria</button></div></form></div>
+    <script type="module" src="/static/js/app.js"></script><script>lucide.createIcons();</script>
+</body>
+</html>

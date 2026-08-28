@@ -19,35 +19,18 @@
             <div class="nav-label">Workspace</div>
             <nav>
                 <ul class="nav-list">
-                    <li>
-                        <a class="nav-link" data-page="dashboard" href="/">
-                            <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
-                            <span>Visao geral</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link" data-page="products" href="/products.html">
-                            <span class="nav-icon"><i data-lucide="package"></i></span>
-                            <span>Produtos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link" data-page="logs" href="/stock-logs.html">
-                            <span class="nav-icon"><i data-lucide="arrow-left-right"></i></span>
-                            <span>Movimentacoes</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link" data-page="users" href="/users.html">
-                            <span class="nav-icon"><i data-lucide="users"></i></span>
-                            <span>Usuarios</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link" data-page="change-password" href="/change-password.html">
-                            <span class="nav-icon"><i data-lucide="key-round"></i></span>
-                            <span>Alterar senha</span>
-                        </a>
+                    <li><a class="nav-link" data-page="dashboard" href="/"><span class="nav-icon"><i
+                                    data-lucide="layout-dashboard"></i></span><span>Visao geral</span></a></li>
+                    <li><a class="nav-link" data-page="products" href="/products.html"><span class="nav-icon"><i
+                                    data-lucide="package"></i></span><span>Produtos</span></a></li>
+                    <li><a class="nav-link" data-page="categories" href="/categories.html"><span class="nav-icon"><i
+                                    data-lucide="tags"></i></span><span>Categorias</span></a></li>
+                    <li><a class="nav-link" data-page="logs" href="/stock-logs.html"><span class="nav-icon"><i
+                                    data-lucide="arrow-left-right"></i></span><span>Movimentacoes</span></a></li>
+                    <li><a class="nav-link" data-page="users" href="/users.html"><span class="nav-icon"><i
+                                    data-lucide="users"></i></span><span>Usuarios</span></a></li>
+                    <li><a class="nav-link" data-page="change-password" href="/change-password.html"><span
+                                class="nav-icon"><i data-lucide="key-round"></i></span><span>Alterar senha</span></a>
                     </li>
                 </ul>
             </nav>
@@ -107,8 +90,10 @@
                         <input id="name" name="name" required maxlength="150">
                     </div>
                     <div class="form-group">
-                        <label for="category">Categoria</label>
-                        <input id="category" name="category" maxlength="50">
+                        <label for="category_id">Categoria *</label>
+                        <select id="category_id" name="category_id" required>
+                            <option value="">Selecione uma categoria</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="current_amount">Estoque atual</label>
