@@ -6,7 +6,6 @@ WORKDIR /app
 
 # Ensure SQLite data directory exists
 RUN mkdir -p /app/data
-COPY data/*.sql /app/data/
 
 # Install dependencies globally inside the container
 COPY requirements.txt .
