@@ -5,12 +5,12 @@ from sqlalchemy import Connection, text
 
 
 _MIGRATION_PATTERN = re.compile(r"^migration(\d+)\.sql$")
-_DATA_DIR = Path(__file__).resolve().parents[3] / "data"
+_MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
 
 
 def _migration_files() -> list[tuple[int, Path]]:
     migrations = []
-    for path in _DATA_DIR.glob("migration*.sql"):
+    for path in _MIGRATIONS_DIR.glob("migration*.sql"):
         match = _MIGRATION_PATTERN.match(path.name)
         if match:
             migrations.append((int(match.group(1)), path))
